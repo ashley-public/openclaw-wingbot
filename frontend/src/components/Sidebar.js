@@ -15,7 +15,7 @@ export default function Sidebar({
   return (
     <aside
       className="sidebar bg-white border-end p-3"
-      style={{ width: '25%', overflowY: 'auto' }}
+      style={{ width: '400px' }}
     >
       <div className="section-header mb-2">Online Bots</div>
       <ul className="list-group list-group-flush mb-3">
