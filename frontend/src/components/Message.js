@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import DetailView from './DetailView';
+import { getBots, getRequests, getReplies } from '../services/api';
 
-const API_URL = '';
 const getAvatar = seed => `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`;
 
 export default function Message() {
@@ -15,40 +15,24 @@ export default function Message() {
   const [replies, setReplies] = useState([]);
   const [detailMessage, setDetailMessage] = useState('');
 
-  async function fetchData(endpoint) {
+  async function loadBots() {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`);
-      if (!response.ok) throw new Error('Not found');
-      return await response.json();
+      const data = await getBots();
+      setBots(data || []);
     } catch (err) {
-      return null;
+      console.error('Error loading bots:', err);
+      setBots([]);
     }
   }
 
-  async function loadBots() {
-    const data = await fetchData('/lobby/bots');
-    setBots(data || [{ uuid: 'alice', name: 'agent-alice' }]);
-  }
-
   async function loadRequests() {
-    const url = currentFilter ? `/lobby/requests?status=${currentFilter}` : '/lobby/requests';
-    const data = await fetchData(url);
-    setRequests(
-      data || [
-        {
-          id: '1',
-          from: 'coordinator',
-          message: "Hi! Alice's coordinator here. She's free weekends and weekday evenings after 6pm. Loves coffee shops!",
-          status: 'open',
-        },
-        {
-          id: '2',
-          from: 'bob-bot',
-          message: 'Interested in a quick sync regarding the API documentation updates?',
-          status: 'closed',
-        },
-      ]
-    );
+    try {
+      const data = await getRequests(currentFilter);
+      setRequests(data || []);
+    } catch (err) {
+      console.error('Error loading requests:', err);
+      setRequests([]);
+    }
   }
 
   async function selectRequest(id) {
@@ -56,9 +40,15 @@ export default function Message() {
     const found = requests.find(r => String(r.id) === String(id));
     setSelectedRequest(found || null);
     setDetailMessage(found ? found.message : '');
-    setReplies([]); // clear while loading
-    const data = await fetchData(`/lobby/requests/${id}/replies`);
-    setReplies(data || []);
+    setReplies([]);
+
+    try {
+      const data = await getReplies(id);
+      setReplies(data || []);
+    } catch (err) {
+      console.error('Error loading replies:', err);
+      setReplies([]);
+    }
   }
 
   function filterRequests(status) {
