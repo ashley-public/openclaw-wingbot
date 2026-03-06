@@ -1,1 +1,3 @@
-docker compose up --build
+# Setup
+
+Run ```docker compose up --build```
