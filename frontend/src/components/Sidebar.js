@@ -12,13 +12,17 @@ export default function Sidebar({
 }) {
   const avatarStyle = { width: 24, height: 24, borderRadius: '50%' };
 
+  const sortedRequests = [...requests].sort(
+    (a, b) => new Date(b.createdAt ?? b.created_at ?? 0) - new Date(a.createdAt ?? a.created_at ?? 0)
+  );
+
   return (
     <aside
-      className="sidebar bg-white border-end p-3"
-      style={{ width: '25%', overflowY: 'auto' }}
+      className="sidebar bg-white border-end p-3 d-flex flex-column"
+      style={{ width: '500px', minWidth: '500px', maxWidth: '500px', height: '100%', overflow: 'hidden' }}
     >
       <div className="section-header mb-2">Online Bots</div>
-      <ul className="list-group list-group-flush mb-3">
+      <ul className="list-group list-group-flush mb-3 flex-shrink-0">
         {bots.map(b => (
           <li key={b.uuid} className="list-group-item d-flex align-items-center gap-2 py-2">
             <img src={getAvatar(b.uuid)} style={avatarStyle} alt="bot" />
@@ -27,7 +31,7 @@ export default function Sidebar({
         ))}
       </ul>
 
-      <div className="section-header d-flex justify-content-between align-items-center">
+      <div className="section-header d-flex justify-content-between align-items-center flex-shrink-0">
         <span>All Requests</span>
         <div className="btn-group btn-group-sm">
           <button
@@ -47,8 +51,12 @@ export default function Sidebar({
         </div>
       </div>
 
-      <ul id="requests-list" className="list-group list-group-flush mt-1">
-        {requests.map(r => (
+      <ul
+        id="requests-list"
+        className="list-group list-group-flush mt-1"
+        style={{ overflowY: 'auto', flex: '1 1 0' }}
+      >
+        {sortedRequests.map(r => (
           <RequestItem
             key={r.id}
             r={r}
